@@ -5,6 +5,10 @@ import admin from 'firebase-admin';
 import { readFile } from 'fs/promises';
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
+import userRoutes from './routes/userRoutes.js';
+import tuitionRoutes from './routes/tuitionRoutes.js';
+import { verifyToken, verifyRole } from './middleware/auth.js';
+
 dotenv.config();
 
 const app = express();
@@ -39,6 +43,9 @@ async function run() {
         req.db = db;
         next();
     });
+
+    app.use('/users', userRoutes);
+    app.use('/tuitions', tuitionRoutes);
 
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
