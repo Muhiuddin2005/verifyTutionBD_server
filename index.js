@@ -7,6 +7,10 @@ import { MongoClient, ServerApiVersion } from 'mongodb';
 
 import userRoutes from './routes/userRoutes.js';
 import tuitionRoutes from './routes/tuitionRoutes.js';
+import applicationRoutes from './routes/applicationRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+
 import { verifyToken, verifyRole } from './middleware/auth.js';
 
 dotenv.config();
@@ -25,7 +29,7 @@ admin.initializeApp({
 app.use(cors());
 app.use(express.json());
 
-const uri = \mongodb+srv://\:\@cluster0.yvkvp7u.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0\;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.yvkvp7u.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -46,7 +50,11 @@ async function run() {
 
     app.use('/users', userRoutes);
     app.use('/tuitions', tuitionRoutes);
+    app.use('/applications', applicationRoutes);
+    app.use('/payments', paymentRoutes);
 
+    app.use('/admin', verifyToken, verifyRole(['admin']), adminRoutes);
+    
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
@@ -60,5 +68,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(\Server is running heavily on port: \\);
+    console.log(`Server is running heavily on port: ${port}`);
 });
